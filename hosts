@@ -1,0 +1,4 @@
+[rpi]
+rpi-cluster-node1.test.home ansible_host=192.168.178.151
+rpi-cluster-node2.test.home ansible_host=192.168.178.152
+rpi-cluster-node3.test.home ansible_host=192.168.178.153
