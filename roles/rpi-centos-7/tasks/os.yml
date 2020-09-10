@@ -1,0 +1,22 @@
+---
+
+- name: Update all packages
+  yum:
+    name: '*'
+    state: latest
+
+- name: Set hostname
+  hostname:
+    name: "{{ inventory_hostname }}"
+
+- name: Install yum utils
+  yum:
+    name: yum-utils
+    state: present
+
+- name: Assert if host needs rebooting
+  command: needs-restarting -r
+  failed_when: reboot_required.rc == 2
+  changed_when: reboot_required.rc != 0
+  register: reboot_required
+  notify: reboot

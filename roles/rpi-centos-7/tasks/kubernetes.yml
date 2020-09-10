@@ -1,0 +1,10 @@
+---
+# These tasks are necessary for Kubernetes installation, but do not harm in any other case
+
+- name: Activate Memory cgroup
+  lineinfile:
+    path: /boot/cmdline.txt
+    regexp: '(^\S.*(?<!cgroup_enable=memory)$)'
+    line: '\1 cgroup_enable=memory'
+    backrefs: yes
+  notify: reboot

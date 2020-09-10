@@ -1,0 +1,18 @@
+---
+
+- name: Create User for further Ansible automation
+  user:
+    name: "{{ automation_user }}"
+    comment: "User for Ansible automation tasks"
+
+- name: Enable sudo permissions for Ansible user
+  copy:
+    content: "{{ automation_user }} ALL=(ALL) NOPASSWD:ALL"
+    dest: /etc/sudoers.d/ansible
+    validate: /usr/sbin/visudo -cf %s
+
+- name: Add public key of current User to authorized_keys of Ansible User
+  authorized_key:
+    user: "{{ automation_user }}"
+    state: present
+    key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
