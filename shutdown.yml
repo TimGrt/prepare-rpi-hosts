@@ -1,0 +1,12 @@
+---
+# This playbook is used to shutdown the Raspberry Pi hosts defined in the inventory file
+
+- name: Shutdown Raspberry Pi nodes
+  hosts: rpi
+  tasks:
+    - name: Execute shutdown command
+      command:
+        cmd: shutdown -h now
+      async: 10
+      poll: 0
+

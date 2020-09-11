@@ -7,23 +7,41 @@
 - name: Ensure public key for current User exists
   stat:
     path: ~/.ssh/id_rsa.pub
-- name: Ensure inventory hosts are not present in known hosts
-  known_hosts:
-    name: "{{ hostvars[item]['ansible_host'] }}"
-    state: absent
-  loop: "{{ groups.all }}"
+#- name: Ensure inventory hosts are not present in known hosts
+#  known_hosts:
+#    name: "{{ hostvars[item]['ansible_host'] }}"
+#    state: absent
+#  loop: "{{ groups.all }}"
 - name: Get ssh key of inventory hosts
   command:
     cmd: "ssh-keyscan -H {{ hostvars[item]['ansible_host'] }}"
   changed_when: false
   loop: "{{ groups.all }}"
   register: keyscan
-- name: Add current ssh key of inventory hosts to known hosts
-  known_hosts:
-    name: "{{ hostvars[item.item]['ansible_host'] }}"
-    key: "{{ hostvars[item.item]['ansible_host'] }} {{ item.stdout_lines.0.split(' ')[1] }} {{ item.stdout_lines.0.split(' ')[2] }}"
-    hash_host: yes
-    state: present
-  loop: "{{ keyscan.results }}"
+#- debug: var=keyscan
+- name: Ensure inventory host is added to know host with correct ssh key
+  command:
+    cmd: "ssh-keygen -F {{ hostvars[item]['ansible_host'] }}"
+  changed_when: false
+  loop: "{{ groups.all }}"
+  register: current_ssh_keys
+- name: Show current ssh key of every inventory host
+  debug: 
+    msg: "{{ item.stdout | regex_replace('(.*\\n.*\\s)(.*)', '\\2') }}"
+  loop: "{{ current_ssh_keys.results }}"
   loop_control:
     label: "{{ item.item }}"
+#- debug:
+#    msg: "{{ item.stdout_lines }}"
+#  loop: "{{ keyscan.results }}"
+#  loop_control:
+#    label: "{{ item.item }}"
+#- name: Add current ssh key of inventory hosts to known hosts
+#  known_hosts:
+#    name: "{{ hostvars[item.item]['ansible_host'] }}"
+#    key: "{{ hostvars[item.item]['ansible_host'] }} {{ item.stdout_lines.0.split(' ')[1] }} {{ item.stdout_lines.0.split(' ')[2] }}"
+#    hash_host: yes
+#    state: present
+#  loop: "{{ keyscan.results }}"
+#  loop_control:
+#    label: "{{ item.item }}"
