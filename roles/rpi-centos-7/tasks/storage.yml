@@ -3,7 +3,7 @@
 # These tasks extend the root partition to use all of the available space
 
 - name: Assert if root partition needs to get expanded
-  command: "growpart {{ ansible_cmdline.root | regex_replace('^(\/dev\/)(?P<device>.*)(p)(?P<devicenumber>.)$', '/dev/\\g<device> \\g<devicenumber>') }} -N"
+  command: "growpart {{ ansible_cmdline.root | regex_replace('\\^(\/dev\/)(?P<device>.*)(p)(?P<devicenumber>.)$', '/dev/\\g<device> \\g<devicenumber>') }} -N"
   failed_when: false
   changed_when: false
   register: partition_needs_resizing
