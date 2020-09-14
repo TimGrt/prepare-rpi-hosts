@@ -8,10 +8,6 @@
   changed_when: false
   register: partition_needs_resizing
 
-- debug:
-    msg: "growpart {{ ansible_cmdline.root | regex_replace('(/dev/)(?P<device>.*)([p])(?P<devicenumber>.)', '/dev/\\g<device> \\g<devicenumber>') }} -N"
-- debug: var=partition_needs_resizing
-
 - name: Expand root partition
   command: /usr/bin/rootfs-expand
   register: rootfs_expand_status
