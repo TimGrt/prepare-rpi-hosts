@@ -6,11 +6,11 @@
   roles:
     - management
 
-#- name: Prepare Raspberry Pi Cluster nodes
-#  hosts: rpi
-#  roles:
-#    - role: rpi-centos-7
-#      when: 
-#        - ansible_facts['distribution'] == 'CentOS'
-#        - ansible_facts['distribution_major_version']  == '7'
+- name: Prepare Raspberry Pi Cluster nodes
+  hosts: rpi
+  roles:
+    - role: rpi-centos-7
+      when: 
+        - ansible_facts['distribution'] == 'CentOS'
+        - ansible_facts['distribution_major_version']  == '7'
 
