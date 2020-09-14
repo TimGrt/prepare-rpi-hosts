@@ -8,6 +8,7 @@
 
 - name: Prepare Raspberry Pi Cluster nodes
   hosts: rpi
+  become: yes
   roles:
     - role: rpi-centos-7
       when: 
