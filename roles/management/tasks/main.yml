@@ -43,12 +43,14 @@
 
 - name: Remove ssh key for inventory hosts as it might not be the current one
   known_hosts:
+    path: "{{ ansible_facts['user_dir'] }}/.ssh/known_hosts"
     name: "{{ hostvars[item]['ansible_host'] }}"
     state: absent
   loop: "{{ groups.all }}"
 
 - name: Add current ssh key of inventory hosts to known hosts
   known_hosts:
+    path: "{{ ansible_facts['user_dir'] }}/.ssh/known_hosts"
     name: "{{ hostvars[item.item]['ansible_host'] }}"
     key: "{{ hostvars[item.item]['ansible_host'] }} {{ item.stdout_lines.0.split(' ')[1] }} {{ item.stdout_lines.0.split(' ')[2] }}"
     hash_host: yes
