@@ -9,7 +9,10 @@
 - name: Prepare Raspberry Pi Cluster nodes
   hosts: rpi
   become: yes
+  collections:
+    - ansible.posix
   roles:
+    - role: rpi-common
     - role: rpi-centos-7
       when: 
         - ansible_facts['distribution'] == 'CentOS'

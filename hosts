@@ -5,3 +5,5 @@
 rpi-cluster-node1.test.home ansible_host=192.168.178.151 ansible_user=root ansible_password=centos
 rpi-cluster-node2.test.home ansible_host=192.168.178.152 ansible_user=root ansible_password=centos
 rpi-cluster-node3.test.home ansible_host=192.168.178.153 ansible_user=root ansible_password=centos
+rpi-cam ansible_host=192.168.178.111 ansible_user=pi ansible_password=raspberry
+

@@ -2,5 +2,4 @@
 
 - import_tasks: storage.yml
 - import_tasks: os.yml
-- import_tasks: user.yml
 - import_tasks: kubernetes.yml
