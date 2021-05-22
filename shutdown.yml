@@ -5,7 +5,7 @@
   hosts: rpi
   tasks:
     - name: Execute shutdown command
-      command:
+      ansible.builtin.command:
         cmd: shutdown -h now
       async: 10
       poll: 0

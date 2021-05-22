@@ -1,0 +1,13 @@
+---
+
+# Setting this parameter requires a reboot
+- name: Adjust PoE hat fan speeds
+  ansible.builtin.blockinfile:
+    path: /boot/config.txt
+    block: |
+      dtparam=poe_fan_temp0=55000
+      dtparam=poe_fan_temp1=60000
+      dtparam=poe_fan_temp2=65000
+      dtparam=poe_fan_temp3=70000
+    marker: "# {mark} ANSIBLE MANAGED - PoE hat fan speeds"
+  notify: reboot

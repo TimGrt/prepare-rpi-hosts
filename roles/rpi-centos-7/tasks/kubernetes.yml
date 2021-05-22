@@ -2,9 +2,9 @@
 # These tasks are necessary for Kubernetes installation, but do not harm in any other case
 
 - name: Activate Memory cgroup
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /boot/cmdline.txt
     regexp: '(^\S.*(?<!cgroup_enable=memory)$)'
     line: '\1 cgroup_enable=memory'
-    backrefs: yes
+    backrefs: true
   notify: reboot

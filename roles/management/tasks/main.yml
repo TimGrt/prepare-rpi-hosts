@@ -1,60 +1,59 @@
 ---
 
+- name: Check for sudo permissions
+  ansible.builtin.command: sudo -n -l
+  register: sudo_permission
+  become: true
+  failed_when: sudo_permission.rc > 1
+  changed_when: false
+  args:
+    warn: false
+
+- name: Info
+  ansible.builtin.fail:
+    msg: "You do not have sufficient sudo permissions, installing 'sshpass' won't work! Execute playbook with '--ask-become-pass' as a workaround."
+  when: sudo_permission.module_stderr is defined
+
 - name: Install sshpass, this is required for Ansible ssh connection via password
-  package:
+  ansible.builtin.package:
     name: sshpass
     state: present
+  become: true
 
-- name: Ensure public key for current User exists
-  stat:
-    path: ~/.ssh/id_rsa.pub
-
-- name: Get ssh key of inventory hosts
+- name: Get SSH key for inventory hosts from known_hosts file
   command:
-    cmd: "ssh-keyscan -H {{ hostvars[item]['ansible_host'] }}"
+    cmd: "ssh-keygen -F {{ hostvars[item]['ansible_host'] }}"
   changed_when: false
+  failed_when: false
   loop: "{{ groups.all }}"
-  register: keyscan
+  register: known_hosts_ssh_keys
 
-# IDEE: momentan hinterlegter Key mit akutellen Keys vergleichen, falls Key vorhanden, muss er nicht ausgetauscht werden
-#- name: Get ssh key for inventory hosts from known hosts
-#  command:
-#    cmd: "ssh-keygen -F {{ hostvars[item]['ansible_host'] }}"
-#  changed_when: false
-#  loop: "{{ groups.all }}"
-#  register: known_hosts_ssh_keys
+- name: Add IP address of hosts missing in known_hosts file to variable
+  set_fact:
+    missing_hosts: "{{ missing_hosts | default([]) + [hostvars[item.item]['ansible_host']] }}"
+  loop: "{{ known_hosts_ssh_keys.results }}"
+  loop_control:
+    label: "{{ hostvars[item.item]['ansible_host'] }}"
+  when: item.rc > 0
 
-#- name: Show current ssh key of every inventory host
-#  debug: 
-#    msg: "{{ item.stdout | regex_replace('(.*\\n.*\\s)(.*)', '\\2') }}"
-#  loop: "{{ known_hosts_ssh_keys.results }}"
-#  loop_control:
-#    label: "{{ item.item }}"
-#- debug:
-#    msg: "{{ item.stdout_lines | regex_replace('(.*\\n.*\\s)(.*)', '\\2') }}"
-#  loop: "{{ keyscan.results }}"
-#  loop_control:
-#    label: "{{ item.item }}"
+- name: Get SSH keys of missing hosts
+  ansible.builtin.command:
+    cmd: "ssh-keyscan -H {{ item }}"
+  changed_when: false
+  loop: "{{ missing_hosts }}"
+  register: missing_hosts_ssh_keys
+  when: missing_hosts is defined
 
-#- debug:
-#    msg: "Key vorhanden"
-#  loop: known_hosts_ssh_keys
-#  when: 
-
-- name: Remove ssh key for inventory hosts as it might not be the current one
-  known_hosts:
+# This tasks adds first ssh key of missing hosts to known_hosts file
+# Example input for key-parameter: 192.168.178.153 ssh-rsa AAAAB3NzaC1yc2EAAA...
+- name: Add SSH key of missing hosts to known hosts
+  ansible.builtin.known_hosts:
     path: "{{ ansible_facts['user_dir'] }}/.ssh/known_hosts"
-    name: "{{ hostvars[item]['ansible_host'] }}"
-    state: absent
-  loop: "{{ groups.all }}"
-
-- name: Add current ssh key of inventory hosts to known hosts
-  known_hosts:
-    path: "{{ ansible_facts['user_dir'] }}/.ssh/known_hosts"
-    name: "{{ hostvars[item.item]['ansible_host'] }}"
-    key: "{{ hostvars[item.item]['ansible_host'] }} {{ item.stdout_lines.0.split(' ')[1] }} {{ item.stdout_lines.0.split(' ')[2] }}"
-    hash_host: yes
+    name: "{{ item.item }}"
+    key: "{{ item.item }} {{ item.stdout_lines[0] | regex_replace('(\\S+\\s)(.*)', '\\2') }}"
+    hash_host: true
     state: present
-  loop: "{{ keyscan.results }}"
+  loop: "{{ missing_hosts_ssh_keys.results }}"
   loop_control:
     label: "{{ item.item }}"
+  when: missing_hosts_ssh_keys.results is defined

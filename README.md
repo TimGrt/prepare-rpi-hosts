@@ -1,5 +1,7 @@
 # Bootstrap Raspberry Pi Hosts 
-Ansible Playbook to prepare Raspberry Pi hosts with initial configurations depending the operating systems used.
+Ansible Playbook to prepare Raspberry Pi hosts with initial configurations depending on the operating system used.
+
+[![CodeFactor](https://www.codefactor.io/repository/github/timgrt/prepare-rpi-hosts/badge)](https://www.codefactor.io/repository/github/timgrt/prepare-rpi-hosts)
 
 The playbook supports the following operating systems:
 * CentOS 7
@@ -8,6 +10,14 @@ The playbook supports the following operating systems:
 The Master node is running the Playbook.
 * Ansible v2.9.x or higher
 
+The following Ansible Collections are necessary:
+* ansible.posix
+
+Missing collections can be installed with the provided `requirements.yml` file.
+```bash
+ansible-galaxy collection install -r requirements.yml
+```
+
 ## Requirements Managed Nodes
 Every Raspberry Pi Node needs to have an OS installed, all further configuration is done through this playbook.
 
@@ -15,5 +25,17 @@ Every Raspberry Pi Node needs to have an OS installed, all further configuration
 2. Insert SD card and start Raspberry Pi.
 3. Ensure SSH is running.
 
+## Execution
+Prepare the Raspberry Pi nodes according to the requirements section and adjust the inventory file.  
+Execute the playbook:
+```bash
+ansible-playbook -i hosts main.yml
+```
 
-*This playbook is tested on Raspberry Pi 4 Nodes with 32GB SD card.*
+Shutdown the Pi nodes:
+```bash
+ansible-playbook -i hosts shutdown.yml
+```
+
+## Author
+Created 2021 by Tim Grützmacher
