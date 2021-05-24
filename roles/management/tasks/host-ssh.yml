@@ -55,4 +55,4 @@
     key: "{{ hostvars[host]['ansible_host'] }} {{ host_key.stdout_lines[0] | regex_replace('(\\S+\\s)(.*)', '\\2') }}"
     hash_host: true
     state: present
-  when: actual_key_found is defined
+  when: actual_key_found is not defined
