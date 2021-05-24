@@ -1,0 +1,58 @@
+---
+
+# Check if Host is already known
+- name: Get SSH keys for '{{ host }}' from known_hosts file
+  ansible.builtin.command:
+    cmd: "ssh-keygen -F {{ hostvars[host]['ansible_host'] }}"
+  changed_when: false
+  failed_when: false
+  register: host_key_known_hosts
+
+# Getting current key is necessary in every case
+- name: Get actual SSH keys for '{{ host }}'
+  ansible.builtin.command:
+    cmd: "ssh-keyscan -H {{ hostvars[host]['ansible_host'] }}"
+  changed_when: false
+  register: host_key
+
+# Block is executed if Host is in known_hosts, checking now if current key is present
+# If host is known but ssh key differs, host key verification fails and connection is not possible
+- block:
+
+  - name: Add all found SSH keys in known_hosts file to list
+    set_fact:
+      host_key_known_hosts_list: "{{ host_key_known_hosts_list + [item | regex_replace('\\S+\\s', '')] }}"
+    loop: "{{ host_key_known_hosts.stdout_lines }}"
+    loop_control:
+      extended: true
+      label: "List element {{ ansible_loop.index }}"
+    when: hostvars[host]['ansible_host'] not in item
+
+  - name: Check if actual key is already in known_hosts list
+    set_fact:
+      actual_key_found: "{{ actual_key_found | default([]) + [item] }}"
+    loop: "{{ host_key.stdout_lines }}"
+    loop_control:
+      label: "{{ item | regex_replace('(\\S+\\s)(\\S+)(\\s.*)', '\\2') }}"
+    when: item | regex_replace('\\S+\\s', '') in host_key_known_hosts_list
+
+    # Key has to be removed because it is not the current one
+  - name: Remove all SSH keys of '{{ host }}' from known_hosts file
+    ansible.builtin.known_hosts:
+      name: "{{ hostvars[host]['ansible_host'] }}"
+      state: absent
+    when: actual_key_found | length == 0
+  
+  when: host_key_known_hosts.rc == 0
+  vars:
+    host_key_known_hosts_list: []
+
+# Add Host to known_hosts file
+- name: Add current SSH key of {{ host }} to known_hosts
+  ansible.builtin.known_hosts:
+    path: "{{ ansible_facts['user_dir'] }}/.ssh/known_hosts"
+    name: "{{ hostvars[host]['ansible_host'] }}"
+    key: "{{ hostvars[host]['ansible_host'] }} {{ host_key.stdout_lines[0] | regex_replace('(\\S+\\s)(.*)', '\\2') }}"
+    hash_host: true
+    state: present
+  when: actual_key_found is defined

@@ -1,0 +1,7 @@
+---
+
+- name: Set up SSH connection to RPi nodes
+  include_tasks: host-ssh.yml
+  loop: "{{ groups.all }}"
+  loop_control:
+    loop_var: host
