@@ -2,7 +2,7 @@
 # <fqdn> ansible_host=<ip address> ansible_user=<ssh user> ansible_password=<ssh password>
 
 [rpi]
-rpi-cluster-node1.test.home ansible_host=192.168.178.151 ansible_user=root ansible_password=centos
-rpi-cluster-node2.test.home ansible_host=192.168.178.152 ansible_user=root ansible_password=centos
-rpi-cluster-node3.test.home ansible_host=192.168.178.153 ansible_user=root ansible_password=centos
+rpi-cluster-node1.test.home ansible_host=192.168.178.151 
+rpi-cluster-node2.test.home ansible_host=192.168.178.152
+rpi-cluster-node3.test.home ansible_host=192.168.178.153
 
