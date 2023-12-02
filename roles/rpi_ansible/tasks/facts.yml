@@ -1,0 +1,24 @@
+---
+
+- name: Create folder for custom facts
+  ansible.builtin.file:
+    path: /etc/ansible/facts.d
+    state: directory
+    mode: "0755"
+
+- name: Add custom fact to gather temperature reading
+  ansible.builtin.copy:
+    src: rpi_temp.py
+    dest: /etc/ansible/facts.d/rpi_temperature.fact
+    mode: "0755"
+
+- name: Gather local facts
+  ansible.builtin.setup:
+
+- name: Ensure temperature reading fact is working
+  ansible.builtin.assert:
+    that:
+      - ansible_local['rpi_temperature'] is defined
+      - ansible_local['rpi_temperature']['temperature_celcius'] is defined
+    success_msg: Custom fact is working, current temperature is {{ ansible_local['rpi_temperature']['temperature_celcius'] }} °C.
+    fail_msg: Custom fact is not working!

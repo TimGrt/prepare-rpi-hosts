@@ -9,7 +9,7 @@
   changed_when: false
   register: partition_needs_resizing
 
-- name: Expand root partition
+- name: Expand root partition # noqa no-changed-when
   ansible.builtin.command:
     cmd: /usr/bin/rootfs-expand
   register: rootfs_expand_status

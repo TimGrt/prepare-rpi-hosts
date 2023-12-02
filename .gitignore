@@ -1,0 +1,5 @@
+.vscode/
+
+# Not tracking group_vars as they might contain
+# root login info necessary to run this bootstrap project
+group_vars/

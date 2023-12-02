@@ -7,4 +7,4 @@
     regexp: '(^\S.*(?<!cgroup_enable=memory)$)'
     line: '\1 cgroup_enable=memory'
     backrefs: true
-  notify: reboot
+  notify: Reboot_handler
