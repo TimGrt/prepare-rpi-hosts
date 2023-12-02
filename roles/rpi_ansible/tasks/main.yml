@@ -1,0 +1,6 @@
+---
+
+- ansible.builtin.import_tasks: user.yml # noqa name[missing]
+- ansible.builtin.import_tasks: facts.yml # noqa name[missing]
+- ansible.builtin.import_tasks: os.yml # noqa name[missing]
+- ansible.builtin.import_tasks: kubernetes.yml # noqa name[missing]

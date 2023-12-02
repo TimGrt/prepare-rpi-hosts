@@ -3,10 +3,10 @@
 
 - name: Shutdown Raspberry Pi nodes
   hosts: rpi
+  become: true
   tasks:
-    - name: Execute shutdown command
+    - name: Execute shutdown command # noqa no-changed-when
       ansible.builtin.command:
         cmd: shutdown -h now
       async: 10
       poll: 0
-
